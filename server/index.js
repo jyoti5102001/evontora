@@ -1,17 +1,21 @@
 
-const dotenv = require('dotenv');
+const dotenv = require('dotenv').config();
 const cors = require('cors');
 const mongoose = require('mongoose');
 const express = require("express");
 const dns = require('dns');
+const authRoutes  = require('./routes/auth');
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
+//Routes
+app.use('/api/auth',  authRoutes);
 // MongoDB Connection
-mongoose.connect("mongodb+srv://jyotidev:Jyoti12345@cluster0.7bht3co.mongodb.net/eventora")
+mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log("MongoDB Connected"))
     .catch(err => console.log(err));
 
