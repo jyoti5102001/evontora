@@ -20,7 +20,7 @@ app.use(express.json());
 //Routes
 app.use('/api/auth',  authRoutes);
 app.use('/api/events', eventRoutes);
-//app.use('/api/bookings', bookingRoutes);
+app.use('/api/bookings', bookingRoutes);
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log("MongoDB Connected"))
