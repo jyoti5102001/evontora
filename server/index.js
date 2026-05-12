@@ -27,6 +27,11 @@ mongoose.connect(process.env.MONGODB_URI)
     .catch(err => console.log(err));
 
 
+    app.use(( req, res, next) => {
+        console.log("req url:", req.url);
+        console.log("req method:", req.method);
+    });
+
 // GET API (fetch all users)
 app.get("/users", async (req, res) => {
     try {
