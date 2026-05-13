@@ -1,10 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const Signup = () => {
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleSignup = (e) => {
   e.preventDefault();
 
   // SAVE TOKEN
@@ -13,17 +13,22 @@ const Login = () => {
   // REDIRECT
   window.location.href = "/dashboard";
 };
-
   return (
     <div className="flex justify-center items-center h-[80vh]">
 
       <form
-        onSubmit={handleLogin}
+        onSubmit={handleSignup}
         className="bg-[#111] p-8 rounded-3xl w-[400px]"
       >
         <h1 className="text-4xl font-bold mb-6 text-center">
-          Login
+          Signup
         </h1>
+
+        <input
+          type="text"
+          placeholder="Name"
+          className="w-full p-4 rounded-xl bg-black border border-gray-700 mb-4"
+        />
 
         <input
           type="email"
@@ -40,11 +45,11 @@ const Login = () => {
         <button
           className="w-full bg-white text-black py-4 rounded-xl font-bold"
         >
-          Login
+          Create Account
         </button>
       </form>
     </div>
   );
 };
 
-export default Login;
+export default Signup;
