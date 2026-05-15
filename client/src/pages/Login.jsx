@@ -1,8 +1,18 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+
 
 const Login = () => {
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [error, setError] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [otp, setOtp] = React.useState("");
+  const [showOtp, setShowOtp] = React.useState(false);
   const navigate = useNavigate();
+
+  const { login, verifyOtp , user} = React.useContext(AuthContext);
 
   const handleLogin = (e) => {
   e.preventDefault();
