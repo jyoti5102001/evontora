@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React from 'react';
 
 export const AuthContext = React.createContext();
@@ -14,22 +15,35 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  const login = async(email, password) => {
+  const login = async (email, password) => {
+
     try {
-    const {data} =await api.post('/auth/login', { email, password });
-    setUser(data.user);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    localStorage.setItem('token', data.token);
-    return data;
+
+        const { data } = await axios.post(
+            'http://localhost:5003/api/auth/login',
+            { email, password }
+        );
+
+        setUser(data);
+
+        localStorage.setItem('user', JSON.stringify(data));
+        localStorage.setItem('token', data.token);
+
+        return data;
+
     } catch (error) {
-      console.error('Error occurred while logging in:', error);
-      throw error; // Rethrow the error to be handled by the caller
+
+        console.log(error.response?.data);
+
+        throw new Error(
+            error.response?.data?.message || 'Login failed'
+        );
     }
-  };
+};
 
   const register = async(name, email, password) => {
     try {
-        const {data} = await api.post('/auth/register', { name, email, password });
+        const {data} = await axios.post('http://localhost:5003/api/auth/register', { name, email, password });
         setUser(data.user);
         return data;
     } catch (error) {
@@ -38,20 +52,46 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const verifyOtp = async() => {
+  const verifyOtp = async (email, otp) => {
 
     try {
-        const {data} = await api.post('/auth/verify-otp');
-        setUser(data.user);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.token);
-        return data;
-    } catch (error) {
-        console.error('OTP verification failed:', error);
-        throw error; // Rethrow the error to be handled by the caller
-    }
-}
 
+        const { data } = await axios.post(
+            'http://localhost:5003/api/auth/verify-otp',
+            {
+                email,
+                otp
+            }
+        );
+
+        setUser(data);
+
+        localStorage.setItem(
+            'user',
+            JSON.stringify(data)
+        );
+
+        localStorage.setItem(
+            'token',
+            data.token
+        );
+
+        return data;
+
+    } catch (error) {
+
+        console.log(
+            error.response?.data
+        );
+
+        throw new Error(
+            error.response?.data?.message
+            || 'OTP verification failed'
+        );
+
+    }
+
+};
 const logout = () => {
     setUser(null);
     localStorage.removeItem('user');

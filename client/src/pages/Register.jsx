@@ -1,210 +1,209 @@
-import React, { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 const Register = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [otp, setOtp] = useState('');
-
-  const [showOtp, setShowOtp] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const { register, verifyOtp } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const { register, verifyOtp } = React.useContext(AuthContext);
+
+  const [name, setName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [otp, setOtp] = React.useState("");
+
+  const [showOtp, setShowOtp] = React.useState(false);
+
+  const [loading, setLoading] = React.useState(false);
+  const [message, setMessage] = React.useState("");
+  const [error, setError] = React.useState("");
+
+  // REGISTER USER
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     setLoading(true);
-    setError('');
-    setSuccess('');
+    setError("");
+    setMessage("");
 
     try {
-      // Register User
-      if (!showOtp) {
-        await register(name, email, password);
+      await register(name, email, password);
 
-        setShowOtp(true);
-        setSuccess('OTP sent to your email successfully.');
-      }
-      
-      // Verify OTP
-      else {
-        await verifyOtp(email, otp);
-
-        setSuccess('Registration successful!');
-        navigate('/Dashboard');
-      }
-    } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-          err?.message ||
-          'Something went wrong'
+      setMessage(
+        "OTP sent to your mail. Please verify your account."
       );
+
+      setShowOtp(true);
+    } catch (err) {
+      setError(err.message || "Registration failed");
     } finally {
       setLoading(false);
     }
   };
 
+  // VERIFY OTP
+  const handleVerifyOtp = async () => {
+
+  try {
+
+    const { data } = await api.post(
+      "/bookings/verify-otp",
+      {
+        eventId: id,
+        otp,
+      }
+    );
+
+    console.log(data);
+
+    // Save booking in localStorage
+    const existingBookings =
+      JSON.parse(localStorage.getItem("myBookings")) || [];
+
+    const newBooking = {
+      eventId: event._id,
+      title: event.title,
+      date: event.date,
+      location: event.location,
+      ticketPrice: event.ticketPrice,
+      imageUrl: event.imageUrl,
+      status: "Awaiting Admin Confirmation",
+    };
+
+    localStorage.setItem(
+      "myBookings",
+      JSON.stringify([
+        ...existingBookings,
+        newBooking,
+      ])
+    );
+
+    setBookingRequested(true);
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert("Invalid OTP");
+
+  }
+
+};
+
   return (
-  <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-    <form
-      onSubmit={handleSubmit}
-      className="w-full max-w-md bg-white shadow-lg rounded-2xl p-8"
-    >
-      {/* Heading */}
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-        {showOtp ? 'Verify Your Account' : 'Create Account'}
-      </h2>
+    <div className="min-h-screen bg-black flex justify-center items-center px-4 text-white">
+      <div className="bg-[#111] w-full max-w-[420px] p-8 rounded-3xl border border-gray-800 shadow-2xl">
+        
+        {/* HEADING */}
+        <h1 className="text-4xl font-bold text-center mb-2">
+          {showOtp ? "Verification Code" : "Create Account"}
+        </h1>
 
-      {/* Error Message */}
-      {error && (
-        <div className="bg-red-100 text-red-600 p-3 rounded-lg mb-4 text-sm text-center">
-          {error}
-        </div>
-      )}
+        <p className="text-center text-gray-400 mb-8">
+          {showOtp
+            ? "Enter the OTP sent to your email"
+            : "Join Eventora today"}
+        </p>
 
-      {/* Success Message */}
-      {success && (
-        <div className="bg-green-100 text-green-600 p-3 rounded-lg mb-4 text-sm text-center">
-          {success}
-        </div>
-      )}
+        {/* ERROR */}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500 text-red-400 p-3 rounded-xl mb-4 text-sm">
+            {error}
+          </div>
+        )}
 
-      {/* REGISTER FORM */}
-      {!showOtp ? (
-        <>
-          {/* Name */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              Name
-            </label>
+        {/* SUCCESS MESSAGE */}
+        {message && (
+          <div className="bg-green-500/10 border border-green-500 text-green-400 p-3 rounded-xl mb-4 text-sm">
+            {message}
+          </div>
+        )}
 
+        {/* REGISTER FORM */}
+        {!showOtp ? (
+          <form onSubmit={handleRegister}>
+            {/* NAME */}
             <input
               type="text"
-              placeholder="Enter your name"
+              placeholder="Full Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              className="w-full p-4 rounded-xl bg-black border border-gray-700 mb-4 outline-none focus:border-[#ff3c00]"
               required
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          </div>
 
-          {/* Email */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              Email
-            </label>
-
+            {/* EMAIL */}
             <input
               type="email"
-              placeholder="Enter your email"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-4 rounded-xl bg-black border border-gray-700 mb-4 outline-none focus:border-[#ff3c00]"
               required
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          </div>
 
-          {/* Password */}
-          <div className="mb-5">
-            <label className="block text-gray-700 font-medium mb-2">
-              Password
-            </label>
-
+            {/* PASSWORD */}
             <input
               type="password"
-              placeholder="Enter your password"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-4 rounded-xl bg-black border border-gray-700 mb-6 outline-none focus:border-[#ff3c00]"
               required
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          </div>
-        </>
-      ) : (
-        <>
-          {/* OTP Verification UI */}
-          <div className="text-center mb-5">
-            <p className="text-gray-600 text-sm">
-              We have sent a verification code to
-            </p>
 
-            <p className="font-semibold text-blue-600 mt-1">
-              {email}
-            </p>
-          </div>
-
-          {/* OTP Input */}
-          <div className="mb-5">
-            <label className="block text-gray-700 font-medium mb-2">
-              Verification Code
-            </label>
-
+            {/* BUTTON */}
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-4 rounded-xl font-bold transition-all duration-300 ${
+                loading
+                  ? "bg-gray-700 cursor-not-allowed"
+                  : "bg-[#ff3c00] hover:bg-[#ff5722]"
+              }`}
+            >
+              {loading ? "Processing..." : "Sign Up"}
+            </button>
+          </form>
+        ) : (
+          /* OTP FORM */
+          <form onSubmit={handleVerifyOtp}>
             <input
               type="text"
-              placeholder="Enter 6-digit OTP"
+              placeholder="Enter OTP"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
+              className="w-full p-4 rounded-xl bg-black border border-gray-700 mb-6 outline-none focus:border-[#ff3c00]"
               required
-              maxLength={6}
-              className="w-full px-4 py-3 border rounded-lg text-center tracking-[8px] text-xl focus:outline-none focus:ring-2 focus:ring-green-500"
             />
-          </div>
-        </>
-      )}
 
-      {/* Submit Button */}
-      <button
-        type="submit"
-        disabled={loading}
-        className={`w-full py-3 rounded-lg text-white font-semibold transition duration-300 ${
-          loading
-            ? 'bg-gray-400 cursor-not-allowed'
-            : showOtp
-            ? 'bg-green-600 hover:bg-green-700'
-            : 'bg-blue-600 hover:bg-blue-700'
-        }`}
-      >
-        {loading
-          ? 'Please wait...'
-          : showOtp
-          ? 'Verify Account'
-          : 'Register'}
-      </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-4 rounded-xl font-bold transition-all duration-300 ${
+                loading
+                  ? "bg-gray-700 cursor-not-allowed"
+                  : "bg-[#ff3c00] hover:bg-[#ff5722]"
+              }`}
+            >
+              {loading ? "Verifying..." : "Verify OTP"}
+            </button>
+          </form>
+        )}
 
-      {/* Login Link */}
-      {!showOtp && (
-        <p className="text-center text-gray-600 mt-5 text-sm">
-          Already have an account?{' '}
-          <span
-            onClick={() => navigate('/login')}
-            className="text-blue-600 cursor-pointer hover:underline"
+        {/* LOGIN LINK */}
+        <p className="text-center mt-6 text-gray-400">
+          Already have an account?
+          <Link
+            to="/login"
+            className="text-[#ff3c00] font-bold ml-2 hover:underline"
           >
             Login
-          </span>
+          </Link>
         </p>
-      )}
-
-      {/* Resend OTP */}
-      {showOtp && (
-        <p className="text-center text-gray-600 mt-5 text-sm">
-          Didn’t receive the OTP?{' '}
-          <span
-            className="text-green-600 cursor-pointer hover:underline"
-            onClick={() => handleSubmit(new Event('submit'))}
-          >
-            Resend OTP
-          </span>
-        </p>
-      )}
-    </form>
-  </div>
-);
+      </div>
+    </div>
+  );
 };
 
 export default Register;
